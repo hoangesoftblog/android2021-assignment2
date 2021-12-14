@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_user"
+        android:title="@string/action_user"
+        android:icon="@drawable/account"/>
+    <item
+        android:id="@+id/action_location"
+        android:title="@string/action_location"
+        android:icon="@drawable/current_location" />
+    <item
+        android:id="@+id/action_list"
+        android:title="@string/action_list"
+        android:icon="@drawable/list"/>
+</menu>
