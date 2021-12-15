@@ -49,7 +49,7 @@ public class HttpHandler {
             //Step 2 - prepare the JSON object
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("name", location.name);
-            jsonObject.put("members", location.members);
+            jsonObject.put("members", location.memberIDs);
             jsonObject.put("latitude", location.latitude);
             jsonObject.put("longitude", location.longitude);
             //Step 3 - Writing data to the web server

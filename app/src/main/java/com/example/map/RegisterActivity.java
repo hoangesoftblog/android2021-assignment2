@@ -93,7 +93,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 public void onSuccess(AuthResult authResult) {
                                     FirebaseUser user = firebaseAuth.getCurrentUser();
                                     Toast.makeText(RegisterActivity.this, "Account Created", Toast.LENGTH_SHORT).show();
-                                    DocumentReference df = fStore.collection("Users").document(user.getUid());
+                                    DocumentReference df = fStore.collection(DatabasePath.USER).document(user.getUid());
                                     Map<String, Object> userInfo = new HashMap<>();
                                     userInfo.put("username", fullName.getText().toString());
                                     userInfo.put("email", email.getText().toString());
