@@ -20,7 +20,9 @@
         <entry key="..\:/Map/app/src/main/res/menu/bottom_menu.xml" value="0.1" />
         <entry key="..\:/Map/app/src/main/res/menu/menu_bottom_nav.xml" value="0.25" />
         <entry key="..\:/android2021-assignment2/app/src/main/res/layout/activity_list.xml" value="0.22" />
-        <entry key="..\:/android2021-assignment2/app/src/main/res/layout/item_user.xml" value="0.1" />
+        <entry key="..\:/android2021-assignment2/app/src/main/res/layout/activity_update_cite.xml" value="0.5" />
+        <entry key="..\:/android2021-assignment2/app/src/main/res/layout/activity_user.xml" value="0.25416666666666665" />
+        <entry key="..\:/android2021-assignment2/app/src/main/res/layout/item_user.xml" value="0.5" />
       </map>
     </option>
   </component>

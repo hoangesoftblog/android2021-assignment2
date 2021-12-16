@@ -14,7 +14,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Update"
+        android:id="@+id/Update_button"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="150dp">
 
+    </Button>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            android:id="@+id/Delete_button">
 
+        </Button>
+
+    </LinearLayout>
 
 </LinearLayout>
