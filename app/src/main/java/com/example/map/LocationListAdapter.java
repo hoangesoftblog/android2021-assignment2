@@ -32,7 +32,7 @@ public class LocationListAdapter extends RecyclerView.Adapter<LocationListAdapte
             return;
         }
         holder.tv_name.setText("Name"+location.getName());
-        holder.tv_owner.setText("Name"+location.getOwner());
+        holder.tv_owner.setText("Number of participants: "+ (location.getMemberIDs() == null ? 0 : location.getMemberIDs().size()));
     }
 
     @Override

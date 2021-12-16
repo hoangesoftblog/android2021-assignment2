@@ -8,12 +8,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +31,7 @@ public class ListActivity extends AppCompatActivity {
 
     private RecyclerView rcvLocation;
     private LocationListAdapter mLocationAdapter;
-    private List<Location> mListLocations;
+    private List<Location> mListLocations = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +73,31 @@ public class ListActivity extends AppCompatActivity {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         rcvLocation.addItemDecoration(dividerItemDecoration);
 
-        mListLocations = new ArrayList<>();
         mLocationAdapter = new LocationListAdapter(mListLocations);
 
         rcvLocation.setAdapter(mLocationAdapter);
+        getListLocation();
     }
-    private void getListLocation(){
 
+    private void getListLocation(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("location").get()
+                .addOnSuccessListener((QuerySnapshot snapshots) -> {
+                    List<DocumentSnapshot> documentSnapshots = snapshots.getDocuments();
+
+                    for (DocumentSnapshot document: documentSnapshots) {
+                        Location loc = document.toObject(Location.class);
+                        if (loc != null) mListLocations.add(loc);
+                    }
+
+                    mLocationAdapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("Get locations", "failed");
+                    }
+                });
     }
     @Override
     protected void onStart() {
