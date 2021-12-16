@@ -17,14 +17,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Map">
         <activity
+            android:name=".UpdateCiteActivity"
+            android:exported="false" />
+        <activity
             android:name=".ListActivity"
             android:exported="false" />
         <activity
             android:name=".UserActivity"
             android:exported="false" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
+
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
