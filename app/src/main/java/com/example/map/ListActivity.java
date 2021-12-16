@@ -73,7 +73,7 @@ public class ListActivity extends AppCompatActivity {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         rcvLocation.addItemDecoration(dividerItemDecoration);
 
-        mLocationAdapter = new LocationListAdapter(mListLocations);
+        mLocationAdapter = new LocationListAdapter(mListLocations,ListActivity.this);
 
         rcvLocation.setAdapter(mLocationAdapter);
         getListLocation();

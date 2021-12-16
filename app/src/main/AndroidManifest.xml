@@ -17,9 +17,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Map">
         <activity
-            android:name=".UpdateCiteActivity"
-            android:exported="false" />
-        <activity
             android:name=".ListActivity"
             android:exported="false" />
         <activity

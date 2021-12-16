@@ -46,4 +46,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.firebase:firebase-firestore:21.4.0'
+    implementation 'com.orhanobut:dialogplus:1.11@aar'
 }
