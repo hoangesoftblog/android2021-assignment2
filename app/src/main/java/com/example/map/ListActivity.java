@@ -1,6 +1,7 @@
 package com.example.map;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,12 +18,19 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +81,62 @@ public class ListActivity extends AppCompatActivity {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         rcvLocation.addItemDecoration(dividerItemDecoration);
 
-        mLocationAdapter = new LocationListAdapter(mListLocations,ListActivity.this);
+        LocationListAdapter.ClickListener listener = new LocationListAdapter.ClickListener() {
+            @Override
+            public void onUpdateButtonClicked(int position) {
+                // Update in local already done in Adapter
+                Location updated = mListLocations.get(position);
+
+                // // Update in cloud
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                WriteBatch batch = db.batch();
+
+                DocumentReference locationRef = db.collection(DatabasePath.LOCATION).document(updated.getId());
+                batch.update(locationRef,"name", updated.name);
+                batch.commit()
+                        .addOnSuccessListener((Void unused) -> {
+                            Toast.makeText(ListActivity.this, "Location updated successfully", Toast.LENGTH_SHORT).show();
+                            mLocationAdapter.notifyItemChanged(position);
+                        })
+                        .addOnFailureListener((@NonNull Exception e) -> {
+                            Toast.makeText(ListActivity.this, "Location updated failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        });
+            }
+
+            @Override
+            public void onDeleteButtonClicked(int position) {
+                Location deleted = mListLocations.remove(position);
+
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.runTransaction(new Transaction.Function<Void>() {
+                    @Nullable
+                    @Override
+                    public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                        DocumentReference locationRef = db.collection(DatabasePath.LOCATION).document(deleted.getId());
+                        transaction.delete(locationRef);
+
+                        DocumentReference ownerRef = db.collection(DatabasePath.USER).document(deleted.getOwner());
+                        transaction.update(ownerRef, "locationsOwned", FieldValue.arrayRemove(deleted.getId()));
+
+                        for (String memberID : deleted.getMemberIDs()) {
+                            DocumentReference userRef = db.collection(DatabasePath.USER).document(memberID);
+                            transaction.update(userRef, "locationsJoined", FieldValue.arrayRemove(deleted.getId()));
+                        }
+
+                        return null;
+                    }
+                }).addOnSuccessListener((Void unused) -> {
+                    Toast.makeText(ListActivity.this, "Location delete successfully", Toast.LENGTH_SHORT).show();
+                    mLocationAdapter.notifyItemRemoved(position);
+
+                }).addOnFailureListener((@NonNull Exception e) -> {
+                    Toast.makeText(ListActivity.this, "Location delete failed", Toast.LENGTH_LONG).show();
+
+                });
+            }
+        };
+
+        mLocationAdapter = new LocationListAdapter(mListLocations,ListActivity.this, listener);
 
         rcvLocation.setAdapter(mLocationAdapter);
         getListLocation();
@@ -81,7 +144,7 @@ public class ListActivity extends AppCompatActivity {
 
     private void getListLocation(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("location").get()
+        db.collection(DatabasePath.LOCATION).get()
                 .addOnSuccessListener((QuerySnapshot snapshots) -> {
                     List<DocumentSnapshot> documentSnapshots = snapshots.getDocuments();
 

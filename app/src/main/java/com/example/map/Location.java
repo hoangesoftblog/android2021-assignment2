@@ -7,13 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 public class Location {
-    @Exclude private String id;
-
+    public String id;
     double latitude, longitude;
     String name;
-//    int id;
     List<String> memberIDs;
     String owner;
+
 
     public Location(String id, double latitude, double longitude, String name, List<String> memberIDs, String owner) {
         this.id = id;
@@ -70,4 +69,11 @@ public class Location {
 
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

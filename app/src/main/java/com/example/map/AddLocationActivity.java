@@ -1,6 +1,7 @@
 package com.example.map;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -14,6 +15,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
@@ -42,6 +45,7 @@ public class AddLocationActivity extends AppCompatActivity {
     public void onConfirmAddRestaurant(View view) {
         EditText resName = findViewById(R.id.resName);
         location.name = resName.getText().toString();
+        location.id = location.name;
 
 //        new PostRestaurant().execute();
         addLocation(location);
@@ -51,33 +55,41 @@ public class AddLocationActivity extends AppCompatActivity {
         String ownerID = location.owner;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        WriteBatch batch = db.batch();
 
-        // Add new location, and update location into user.locationOwned
-        DocumentReference locationRef =  db.collection(DatabasePath.LOCATION).document(location.name);
-        batch.set(locationRef, location);
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                // Check if the document id exists first
+                DocumentReference locationRef = db.collection(DatabasePath.LOCATION).document(location.getName());
+                if (transaction.get(locationRef).exists()) {
+                    throw new FirebaseFirestoreException("Location name already exists", FirebaseFirestoreException.Code.ALREADY_EXISTS);
+                }
+                else {
+                    // Add new location, and update location into user.locationOwned
+                    transaction.set(locationRef, location);
 
-        DocumentReference userRef = db.collection(DatabasePath.USER).document(ownerID);
-        batch.update(userRef, "locationsOwned", FieldValue.arrayUnion(location.getName()));
+                    DocumentReference userRef = db.collection(DatabasePath.USER).document(ownerID);
+                    transaction.update(userRef, "locationsOwned", FieldValue.arrayUnion(location.getId()));
+                }
 
-        batch.commit()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Toast.makeText(AddLocationActivity.this, "Location created successfully", Toast.LENGTH_SHORT).show();
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Toast.makeText(AddLocationActivity.this, "Location created successfully", Toast.LENGTH_SHORT).show();
 
-                        Intent intent = new Intent(AddLocationActivity.this, MapsActivity.class);
-                        setResult(101, intent);
-                        finish();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(AddLocationActivity.this, "Location created failed", Toast.LENGTH_LONG).show();
-                    }
-                })
-        ;
+                Intent intent = new Intent(AddLocationActivity.this, MapsActivity.class);
+                setResult(101, intent);
+                finish();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(AddLocationActivity.this, "Location created failed", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
 //    private class PostRestaurant extends AsyncTask<Void,Void,Void> {

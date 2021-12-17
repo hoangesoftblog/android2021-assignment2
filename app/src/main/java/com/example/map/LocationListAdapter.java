@@ -29,9 +29,12 @@ public class LocationListAdapter extends RecyclerView.Adapter<LocationListAdapte
     private List<Location> mListLocation;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Context context;
-    public LocationListAdapter(List<Location> mListLocation, Context context) {
+    private ClickListener clickListener;
+
+    public LocationListAdapter(List<Location> mListLocation, Context context, ClickListener clickListener) {
         this.mListLocation = mListLocation;
         this.context = context;
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -48,55 +51,36 @@ public class LocationListAdapter extends RecyclerView.Adapter<LocationListAdapte
         if (location == null){
             return;
         }
-        holder.tv_name.setText("Name"+location.getName());
+        holder.tv_name.setText("Name: "+location.getName());
         holder.tv_owner.setText("Number of participants: "+ (location.getMemberIDs() == null ? 0 : location.getMemberIDs().size()));
 
+        holder.Update_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final DialogPlus dialogPlus = DialogPlus.newDialog(holder.Update_button.getContext())
+                        .setContentHolder(new ViewHolder(R.layout.update_popup))
+                        .setExpanded(true, 1200)
+                        .create();
+                View view = dialogPlus.getHolderView();
 
-    holder.Update_button.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            final DialogPlus dialogPlus = DialogPlus.newDialog(holder.Update_button.getContext())
-                    .setContentHolder(new ViewHolder(R.layout.update_popup))
-                    .setExpanded(true, 1200)
-                    .create();
+                EditText name = view.findViewById(R.id.txtName);
+                Button btnUpdate = view.findViewById(R.id.btnUpdate);
 
+                name.setText(location.getName());
 
-            View view = dialogPlus.getHolderView();
+                btnUpdate.setOnClickListener((View buttonView) -> {
+                    int pos = holder.getAdapterPosition();
+                    Location location1 = mListLocation.get(pos);
+                    location1.setName(name.getText().toString());
+                    clickListener.onUpdateButtonClicked(pos);
+                });
 
-            EditText name = view.findViewById(R.id.txtName);
-            Button btnUpdate = view.findViewById(R.id.Update_button);
-
-            name.setText(location.getName());
-
-            dialogPlus.show();
-
-//            btnUpdate.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//
-//
-//
-//                }
-//            });
-        }
-    });
-    holder.Delete_button.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-           db.collection("location").document(location.getName())
-                   .delete()
-                   .addOnSuccessListener(new OnSuccessListener<Void>() {
-                       @Override
-                       public void onSuccess(Void unused) {
-
-                           ((Activity) context).finish();
-                           context.startActivity(new Intent(context, ListActivity.class));
-                       }
-                   });
-
-        }
-    });
-
+                dialogPlus.show();
+            }
+        });
+        holder.Delete_button.setOnClickListener((View v) -> {
+                clickListener.onDeleteButtonClicked(holder.getAdapterPosition());
+        });
     }
 
     @Override
@@ -123,5 +107,10 @@ public class LocationListAdapter extends RecyclerView.Adapter<LocationListAdapte
             Update_button = (Button)itemView.findViewById(R.id.Update_button);
             Delete_button = (Button)itemView.findViewById(R.id.Delete_button);
         }
+    }
+
+    public interface ClickListener {
+        void onUpdateButtonClicked(int position);
+        void onDeleteButtonClicked(int position);
     }
 }

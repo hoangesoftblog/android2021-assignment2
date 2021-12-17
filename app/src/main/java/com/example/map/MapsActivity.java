@@ -186,7 +186,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e("Get locations", "failed");
+                        Log.e(MapsActivity.class.getSimpleName() + " - " + "Fetch locations", "failed");
                     }
                 });
     }
@@ -289,11 +289,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         WriteBatch batch = db.batch();
 
         // Update the current userID into location.memberIDs and update the location into users.locationsJoined
-        DocumentReference locationRef = db.collection(DatabasePath.LOCATION).document(location.getName());
+        DocumentReference locationRef = db.collection(DatabasePath.LOCATION).document(location.getId());
         batch.update(locationRef, "memberIDs", FieldValue.arrayUnion(userID));
 
         DocumentReference userRef = db.collection(DatabasePath.USER).document(userID);
-        batch.update(userRef, "locationsJoined", FieldValue.arrayUnion(location.getName()));
+        batch.update(userRef, "locationsJoined", FieldValue.arrayUnion(location.getId()));
 
         batch.commit()
                 .addOnSuccessListener((Void unused) -> {
