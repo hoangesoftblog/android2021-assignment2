@@ -20,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.ViewHolder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +112,9 @@ public class LocationListAdapter extends RecyclerView.Adapter<LocationListAdapte
         private TextView tv_name;
         private TextView tv_owner;
 
+
         Button Update_button, Delete_button;
+
         public LocationViewHolder(@NonNull View itemView) {
             super(itemView);
             tv_name = itemView.findViewById(R.id.tv_name);

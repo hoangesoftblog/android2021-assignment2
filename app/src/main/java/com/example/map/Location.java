@@ -1,15 +1,28 @@
 package com.example.map;
 
+import com.google.firebase.firestore.Exclude;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Location {
+    @Exclude private String id;
+
     double latitude, longitude;
     String name;
 //    int id;
     List<String> memberIDs;
     String owner;
+
+    public Location(String id, double latitude, double longitude, String name, List<String> memberIDs, String owner) {
+        this.id = id;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.name = name;
+        this.memberIDs = memberIDs;
+        this.owner = owner;
+    }
 
     public String getOwner() {
         return owner;
@@ -43,13 +56,7 @@ public class Location {
         this.name = name;
     }
 
-//    public int getId() {
-//        return id;
-//    }
-//
-//    public void setId(int id) {
-//        this.id = id;
-//    }
+
 
     public List<String> getMemberIDs() {
         return memberIDs;
